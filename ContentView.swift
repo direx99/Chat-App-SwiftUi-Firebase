@@ -10,14 +10,28 @@ import SwiftUI
 struct ContentView: View {
     
     @State var isLoginMode = false
+    @State var isNameValid = false
+    @State var isEmailValid = false
+
+    
     @State var email = ""
     @State var password = ""
+    @State var name = ""
+
+    func validateName(_ name: String) -> Bool {
+        let nameRegex = "^[a-zA-Z]+(([',. -][a-zA-Z ])?[a-zA-Z]*)*$"
+        return !name.isEmpty && name.range(of: nameRegex, options: .regularExpression) != nil
+    }
+    func validateEmail(_ email: String) -> Bool {
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}"
+        return !email.isEmpty && email.range(of: emailRegex, options: .regularExpression) != nil
+    }
     
     
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack (spacing:16){
+                VStack (spacing:10){
                     Picker(selection: $isLoginMode , label: Text("Piker here")){
                         Text("Login")
                             .tag(true)
@@ -34,53 +48,59 @@ struct ContentView: View {
                         } label: {
                             Image(systemName: "person.fill")
                                 .font(.system(size: 64))
-                                .padding()
+                                .padding(20)
+                                .background(Color.white)
+                                .cornerRadius(100)
+                            
                         }
-                    }
+                   
                     
                     Group {
-                        HStack(spacing: 20){
-                            
-                                TextField("First Name", text: $email)
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                                    .padding(.vertical,10)
-                                        .padding(.horizontal,15)
-                                        .background(Color.white)
-                                        .cornerRadius(50)
-
-                            
-                           
-                                TextField("First Name", text: $email)
-                                    .keyboardType(.emailAddress)
-                                    .autocapitalization(.none)
-                            
-                            
-                            .padding(.vertical,10)
-                                .padding(.horizontal,15)
-                                .background(Color.white)
-                                .cornerRadius(50)
-
-                            
-                        }
+                       
                         
+                        TextField("Name", text: $name)
+                        
+                            .autocapitalization(.words)
+                            .overlay(
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: isNameValid ? "checkmark.circle.fill" : "checkmark.circle.fill")
+                                            .foregroundColor(isNameValid ? .green : .gray)
+                                            .padding(.trailing, 5)
+                                    }
+                                )
+                                .onChange(of: name) { newValue in
+                                    isNameValid = validateName(newValue)
+                                }
                         TextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .padding(.vertical,10)
-                                .padding(.horizontal,15)
-                                .background(Color.white)
-                                .cornerRadius(50)
+                        
+                             .keyboardType(.emailAddress)
+                             .autocapitalization(.none)
+                             .overlay(
+                                     HStack {
+                                         Spacer()
+                                         Image(systemName: isEmailValid ? "checkmark.circle.fill" : "checkmark.circle.fill")
+                                             .foregroundColor(isEmailValid ? .green : .gray)
+                                             .padding(.trailing, 5)
+                                     }
+                                 )
+                                 .onChange(of: email) { emailValue in
+                                     isEmailValid = validateEmail(emailValue)
+                                 }
+                        
 
+                        SecureField("Password", text :$password)
 
-                        SecureField("Password", text: $password)
-                            .padding(.vertical,10)
-                                .padding(.horizontal,15)
-                                .background(Color.white)
-                                .cornerRadius(50)
+                       
+                       
+                        
                         
                     }
-
+                    .padding(.vertical,10)
+                        .padding(.horizontal,15)
+                        .background(Color.white)
+                        .cornerRadius(50)
+                   
                     
                     Button {
                         handleAction()
@@ -102,7 +122,7 @@ struct ContentView: View {
                         
                         
                     }
-                    
+                    }
                     
                 }
                 .padding()
